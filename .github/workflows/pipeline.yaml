@@ -9,7 +9,6 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
     environment: raiosystems
 
     steps:
@@ -19,17 +18,27 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/local
+          chmod 600 ~/.kube/local
+
       - name: Generate terraform.tfvars
         run: |
-          echo "${{ secrets.TERRAFORMKUBECONFIG }}" > terraform.tfvars
+          echo "${{ secrets.TERRAFORMVARS }}" | base64 -d > terraform.tfvars
+          chmod 600 terraform.tfvars
 
       - name: Terraform Init
         run: terraform init
 
+      # - name: Terraform Validate
+      #   run: terraform validate
+
       - name: Terraform Plan
         run: terraform plan -var-file=terraform.tfvars
 
-      # Ativar Apply somente na main
+      # Descomente para aplicar na main
       # - name: Terraform Apply
       #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       #   run: terraform apply -auto-approve -var-file=terraform.tfvars
