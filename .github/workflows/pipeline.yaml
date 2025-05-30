@@ -10,12 +10,18 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
+    environment: raiosystems
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Generate terraform.tfvars
+        run: |
+          echo "${{ secrets.TERRAFORMKUBECONFIG }}" > terraform.tfvars
 
       - name: Terraform Init
         run: terraform init
@@ -27,9 +33,9 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -var-file=terraform.tfvars
 
-      # Uncomment the following to enable apply on push to main
+      # Ativar Apply somente na main
       # - name: Terraform Apply
       #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   run: terraform apply -auto-approve
+      #   run: terraform apply -auto-approve -var-file=terraform.tfvars
