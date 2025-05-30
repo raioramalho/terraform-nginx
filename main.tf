@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-
 provider "kubernetes" {
   config_path = var.kubernetes_config_path
   token = var.kubernetes_token
